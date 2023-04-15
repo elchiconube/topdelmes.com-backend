@@ -61,11 +61,8 @@ def get_data(table_name):
     else:
         year = int(year)
 
-    if year > current_year or year < 1900:
-        return jsonify({"error": "Invalid year value"}), 400
-
-    if month < 1 or month > 12:
-        return jsonify({"error": "Invalid month value"}), 400
+    if year > current_year or (year == current_year and month > current_month):
+        return jsonify({"error": "Invalid date value"}), 400
 
     conn = database.create_connection()
     if table_name == "series":
@@ -91,10 +88,16 @@ def get_data(table_name):
             "title": row[1],
             "rating": row[2],
             "description": row[3],
-            "image_url": row[4],
-            "imdb_url": row[5],
-            "year": row[6],
-            "month": row[7]
+            "poster_url": row[4],
+            "detail_url": row[5],
+            "votes": row[6],
+            "runtime": row[7],
+            "pub_year": row[8],
+            "genre": row[9],
+            "certificate": row[10],
+            "metascore": row[11],
+            "year": row[12],
+            "month": row[13]
         }
         result.append(obj)
 

@@ -5,12 +5,6 @@ import calendar
 from dateutil.relativedelta import relativedelta
 import re
 
-def update_poster_url(url):
-    pattern = r'@._V1_(UX|UY)\d+_(CR\d+,0,)?\d+,\d+(_AL_)?'
-    new_suffix = "@._V1_SY1000_CR0,0,674,1000_AL_"
-    new_url = re.sub(pattern, new_suffix, url)
-    return new_url
-
 def get_start_and_end_dates(year, month):
     start_date = datetime(year, month, 1)
     end_date = start_date + relativedelta(months=1) - timedelta(days=1)
@@ -26,7 +20,7 @@ def scrape_imdb(year, month, title_type="tv_series"):
     if title_type == "series":
         title_type = "tv_series"
     elif title_type == "movies":
-        title_type = "movies"
+        title_type = "movie"
 
     url = f"https://www.imdb.com/search/title/?title_type={title_type}&release_date={start_date},{end_date}&start=1&ref_=adv_nxt"
 
@@ -40,15 +34,31 @@ def scrape_imdb(year, month, title_type="tv_series"):
         rating = item.select_one('.ratings-imdb-rating')
         description = item.select_one('.lister-item-content p:nth-of-type(2)')
         poster = item.select_one('.lister-item-image img')
-
+        votes = item.select_one('.sort-num_votes-visible span:nth-of-type(2)')
+        runtime = item.select_one('.runtime')
+        year = item.select_one('.lister-item-year')
+        genre = item.select_one('.genre')
+        metascore = item.select_one('.metascore')
+        certificate = item.select_one('.certificate')
+        
         series.append({
-            'title': title.text.strip() if title else "Título no encontrado",
+            'title': title.text.strip() if title else "",
             'rating': float(rating['data-value'].strip()) if rating else 0.0,
-            'description': description.text.strip() if description else "Descripción no encontrada",
-            'poster_url': update_poster_url(poster['loadlate']) if poster else "URL de la carátula no encontrada",
-            'detail_url': f"https://www.imdb.com{title['href']}" if title else "Enlace para ver el detalle no encontrado"
+            'description': description.text.strip() if description else "",
+            'poster_url': update_poster_url(poster['loadlate']) if poster else "",
+            'detail_url': f"https://www.imdb.com{title['href']}" if title else "",
+            'votes': int(votes.text.strip().replace(",", "")) if votes else 0,
+            'runtime': int(runtime.text.strip().replace(" min", "")) if runtime else 0,
+            'pub_year': year.text.strip() if year else "",
+            'genre': genre.text.strip() if genre else "",
+            'certificate': certificate.text.strip() if certificate else "",
+            'metascore': int(metascore.text.strip()) if metascore else 0
         })
 
-    sorted_series = sorted(series, key=lambda x: x['rating'], reverse=True)
+    return series
 
-    return sorted_series
+def update_poster_url(url):
+    pattern = r'@._V1_(UX|UY)\d+_(CR\d+,0,)?\d+,\d+(_AL_)?'
+    new_suffix = "@._V1_SY1000_CR0,0,674,1000_AL_"
+    new_url = re.sub(pattern, new_suffix, url)
+    return new_url

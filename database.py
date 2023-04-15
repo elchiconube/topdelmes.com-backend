@@ -20,6 +20,12 @@ def create_series_table(conn):
                         description TEXT NOT NULL,
                         poster_url TEXT NOT NULL,
                         detail_url TEXT NOT NULL,
+                        votes INTEGER NOT NULL,
+                        runtime INTEGER NOT NULL,
+                        pub_year TEXT NOT NULL,
+                        genre TEXT NOT NULL,
+                        certificate TEXT NOT NULL,
+                        metascore INTEGER NOT NULL,
                         year INTEGER NOT NULL,
                         month INTEGER NOT NULL)''')
     except Error as e:
@@ -35,6 +41,12 @@ def create_movies_table(conn):
                         description TEXT NOT NULL,
                         poster_url TEXT NOT NULL,
                         detail_url TEXT NOT NULL,
+                        votes INTEGER NOT NULL,
+                        runtime INTEGER NOT NULL,
+                        pub_year TEXT NOT NULL,
+                        genre TEXT NOT NULL,
+                        certificate TEXT NOT NULL,
+                        metascore INTEGER NOT NULL,
                         year INTEGER NOT NULL,
                         month INTEGER NOT NULL)''')
     except Error as e:
@@ -44,8 +56,8 @@ def insert_series(conn, series_list, year, month, table_name="series"):
     try:
         cursor = conn.cursor()
         for series in series_list:
-            cursor.execute('''INSERT INTO series (title, rating, description, poster_url, detail_url, year, month)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)''', (series['title'], series['rating'], series['description'], series['poster_url'], series['detail_url'], year, month))
+            cursor.execute('''INSERT INTO series (title, rating, description, poster_url, detail_url, votes, runtime, pub_year, genre, certificate, metascore, year, month)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (series['title'], series['rating'], series['description'], series['poster_url'], series['detail_url'], series['votes'], series['runtime'], series['pub_year'], series['genre'], series['certificate'], series['metascore'], year, month))
         conn.commit()
     except Error as e:
         print(e)
@@ -54,8 +66,8 @@ def insert_movies(conn, movies_list, year, month, table_name="movies"):
     try:
         cursor = conn.cursor()
         for movies in movies_list:
-            cursor.execute('''INSERT INTO movies (title, rating, description, poster_url, detail_url, year, month)
-                            VALUES (?, ?, ?, ?, ?, ?, ?)''', (movies['title'], movies['rating'], movies['description'], movies['poster_url'], movies['detail_url'], year, month))
+            cursor.execute('''INSERT INTO movies (title, rating, description, poster_url, detail_url, votes, runtime, pub_year, genre, certificate, metascore, year, month)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (movies['title'], movies['rating'], movies['description'], movies['poster_url'], movies['detail_url'], movies['votes'], movies['runtime'], movies['pub_year'], movies['genre'], movies['certificate'], movies['metascore'], year, month))
         conn.commit()
     except Error as e:
         print(e)

@@ -1,0 +1,47 @@
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
+import calendar
+from dateutil.relativedelta import relativedelta
+
+def get_start_and_end_dates(year, month):
+    start_date = datetime(year, month, 1)
+    end_date = start_date + relativedelta(months=1) - timedelta(days=1)
+    start_date_str = start_date.strftime("%Y-%m-%d")
+    end_date_str = end_date.strftime("%Y-%m-%d")
+    return start_date_str, end_date_str
+
+def scrape_imdb(year, month, title_type="tv_series"):
+    start_date, end_date = get_start_and_end_dates(year, month)
+
+    headers = {"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1"}
+
+    if title_type == "series":
+        title_type = "tv_series"
+    elif title_type == "movies":
+        title_type = "movies"
+
+    url = f"https://www.imdb.com/search/title/?title_type={title_type}&release_date={start_date},{end_date}&start=1&ref_=adv_nxt"
+
+    response = requests.get(url, headers=headers)
+    soup = BeautifulSoup(response.text, "html.parser")
+
+    series = []
+
+    for item in soup.select('.lister-item.mode-advanced'):
+        title = item.select_one('.lister-item-header a')
+        rating = item.select_one('.ratings-imdb-rating')
+        description = item.select_one('.lister-item-content p:nth-of-type(2)')
+        poster = item.select_one('.lister-item-image img')
+
+        series.append({
+            'title': title.text.strip() if title else "Título no encontrado",
+            'rating': float(rating['data-value'].strip()) if rating else 0.0,
+            'description': description.text.strip() if description else "Descripción no encontrada",
+            'poster_url': poster['loadlate'] if poster else "URL de la carátula no encontrada",
+            'detail_url': f"https://www.imdb.com{title['href']}" if title else "Enlace para ver el detalle no encontrado"
+        })
+
+    sorted_series = sorted(series, key=lambda x: x['rating'], reverse=True)
+
+    return sorted_series

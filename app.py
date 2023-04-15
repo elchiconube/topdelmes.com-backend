@@ -14,6 +14,7 @@ load_dotenv()
 app = Flask(__name__)
 
 API_KEY = os.getenv("API_KEY")
+
 def update_data(table_name):
     print(f"Actualizando datos de {table_name}...")
     current_year, current_month = datetime.now().year, datetime.now().month
@@ -36,16 +37,6 @@ def run_schedule():
         schedule.run_pending()
         time.sleep(1)
 
-@app.route("/series", methods=["GET"])
-@require_api_key
-def get_series():
-    return get_data("series")
-
-@app.route("/movies", methods=["GET"])
-@require_api_key
-def get_movies():
-    return get_data("movies")
-
 def get_data(table_name):
     month = request.args.get("month")
     year = request.args.get("year")
@@ -65,44 +56,28 @@ def get_data(table_name):
         return jsonify({"error": "Invalid date value"}), 400
 
     conn = database.create_connection()
-    if table_name == "series":
-        rows = database.get_data_by_month_and_year(conn, month, year, "series")
-    elif table_name == "movies":
-        rows = database.get_data_by_month_and_year(conn, month, year, "movies")
+    rows = database.get_data_by_month_and_year(conn, month, year, table_name)
 
     if not rows:
         data = scraper.scrape_imdb(year, month, title_type=table_name)
-        if table_name == "series":
-            database.insert_data(conn, data, year, month, "series")
-            rows = database.get_data_by_month_and_year(conn, month, year, "series")
-        elif table_name == "movies":
-            database.insert_data(conn, data, year, month, "movies")
-            rows = database.get_data_by_month_and_year(conn, month, year, "movies")
+        database.insert_data(conn, data, year, month, table_name)
+        rows = database.get_data_by_month_and_year(conn, month, year, table_name)
 
     conn.close()
 
-    result = []
-    for row in rows:
-        obj = {
-            "id": row[0],
-            "title": row[1],
-            "rating": row[2],
-            "description": row[3],
-            "poster_url": row[4],
-            "detail_url": row[5],
-            "votes": row[6],
-            "runtime": row[7],
-            "pub_year": row[8],
-            "genre": row[9],
-            "certificate": row[10],
-            "metascore": row[11],
-            "year": row[12],
-            "month": row[13]
-        }
-        result.append(obj)
+    result = [dict(zip(('id', 'title', 'rating', 'description', 'poster_url', 'detail_url', 'votes', 'runtime', 'pub_year', 'genre', 'certificate', 'metascore', 'year', 'month'), row)) for row in rows]
 
     return jsonify(result)
 
+@app.route("/series", methods=["GET"])
+@require_api_key
+def get_series():
+    return get_data("series")
+
+@app.route("/movies", methods=["GET"])
+@require_api_key
+def get_movies():
+    return get_data("movies")
 
 if __name__ == "__main__":
     # Crear la conexión a la base de datos y la tabla
@@ -117,11 +92,10 @@ if __name__ == "__main__":
     database.insert_data(conn, series, current_year, current_month, "series")
     database.insert_data(conn, movies, current_year, current_month, "movies")
 
-    # Programar la actualización para ejecutarse cada mes
+    # Programar la actualización para ejecarse cada mes
     days_in_month = calendar.monthrange(current_year, current_month)[1]
     schedule.every(days_in_month).days.at("00:00").do(update_data, table_name="series")
     schedule.every(days_in_month).days.at("00:00").do(update_data, table_name="movies")
-
     scheduler_thread = threading.Thread(target=run_schedule)
     scheduler_thread.start()
 

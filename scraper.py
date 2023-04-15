@@ -3,6 +3,13 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import calendar
 from dateutil.relativedelta import relativedelta
+import re
+
+def update_poster_url(url):
+    pattern = r'@._V1_(UX|UY)\d+_(CR\d+,0,)?\d+,\d+(_AL_)?'
+    new_suffix = "@._V1_SY1000_CR0,0,674,1000_AL_"
+    new_url = re.sub(pattern, new_suffix, url)
+    return new_url
 
 def get_start_and_end_dates(year, month):
     start_date = datetime(year, month, 1)
@@ -40,7 +47,7 @@ def scrape_imdb(year, month, title_type="tv_series"):
             'title': title.text.strip() if title else "Título no encontrado",
             'rating': float(rating['data-value'].strip()) if rating else 0.0,
             'description': description.text.strip() if description else "Descripción no encontrada",
-            'poster_url': poster_url,
+            'poster_url': update_poster_url(poster['loadlate']) if poster else "URL de la carátula no encontrada",
             'detail_url': f"https://www.imdb.com{title['href']}" if title else "Enlace para ver el detalle no encontrado"
         })
 

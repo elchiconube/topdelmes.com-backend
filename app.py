@@ -66,18 +66,18 @@ def get_data(table_name):
 
     conn = database.create_connection()
     if table_name == "series":
-        rows = database.get_series_by_month_and_year(conn, month, year)
+        rows = database.get_data_by_month_and_year(conn, month, year, "series")
     elif table_name == "movies":
-        rows = database.get_movies_by_month_and_year(conn, month, year)
+        rows = database.get_data_by_month_and_year(conn, month, year, "movies")
 
     if not rows:
         data = scraper.scrape_imdb(year, month, title_type=table_name)
         if table_name == "series":
-            database.insert_series(conn, data, year, month)
-            rows = database.get_series_by_month_and_year(conn, month, year)
+            database.insert_data(conn, data, year, month, "series")
+            rows = database.get_data_by_month_and_year(conn, month, year, "series")
         elif table_name == "movies":
-            database.insert_movies(conn, data, year, month)
-            rows = database.get_movies_by_month_and_year(conn, month, year)
+            database.insert_data(conn, data, year, month, "movies")
+            rows = database.get_data_by_month_and_year(conn, month, year, "movies")
 
     conn.close()
 
@@ -107,15 +107,15 @@ def get_data(table_name):
 if __name__ == "__main__":
     # Crear la conexión a la base de datos y la tabla
     conn = database.create_connection()
-    database.create_series_table(conn)
-    database.create_movies_table(conn)
+    database.create_table(conn, "series")
+    database.create_table(conn, "movies")
 
     # Realizar web scraping y guardar los datos en la base de datos
     current_year, current_month = datetime.now().year, datetime.now().month
     series = scraper.scrape_imdb(current_year, current_month, title_type="tv_series")
     movies = scraper.scrape_imdb(current_year, current_month, title_type="movies")
-    database.insert_series(conn, series, current_year, current_month)
-    database.insert_movies(conn, movies, current_year, current_month)
+    database.insert_data(conn, series, current_year, current_month, "series")
+    database.insert_data(conn, movies, current_year, current_month, "movies")
 
     # Programar la actualización para ejecutarse cada mes
     days_in_month = calendar.monthrange(current_year, current_month)[1]

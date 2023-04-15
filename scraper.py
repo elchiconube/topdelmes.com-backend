@@ -41,8 +41,6 @@ def scrape_imdb(year, month, title_type="tv_series"):
         description = item.select_one('.lister-item-content p:nth-of-type(2)')
         poster = item.select_one('.lister-item-image img')
 
-        poster_url = poster['loadlate'].replace("@._V1_UX67_CR0,0,67,98_AL_", "@._V1_SY1000_CR0,0,674,1000_AL_") if poster else "URL de la carátula no encontrada"
-
         series.append({
             'title': title.text.strip() if title else "Título no encontrado",
             'rating': float(rating['data-value'].strip()) if rating else 0.0,

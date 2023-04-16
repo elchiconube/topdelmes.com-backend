@@ -57,7 +57,7 @@ def scrape_imdb(year, month, title_type="tv_series"):
     return [get_item_data(item) for item in soup.select('.lister-item.mode-advanced')]
 
 def update_poster_url(url):
-    pattern = r'@._V1_(UX|UY)\d+_(CR\d+,0,)?\d+,\d+(_AL_)?'
-    new_suffix = "@._V1_SY1000_CR0,0,674,1000_AL_"
+    pattern = r'@._V1_.*_AL_\.jpg'
+    new_suffix = "@._V1_SY1000_CR0,0,674,1000_AL_.jpg"
     new_url = re.sub(pattern, new_suffix, url)
     return new_url

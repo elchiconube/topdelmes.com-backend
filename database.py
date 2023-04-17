@@ -15,6 +15,7 @@ def create_table(conn, table_name):
         cursor = conn.cursor()
         cursor.execute(f'''CREATE TABLE IF NOT EXISTS {table_name}
                         (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        imdb_id TEXT NOT NULL,
                         title TEXT NOT NULL,
                         rating REAL NOT NULL,
                         description TEXT NOT NULL,
@@ -35,8 +36,8 @@ def insert_data(conn, data_list, year, month, table_name):
     try:
         cursor = conn.cursor()
         for data in data_list:
-            cursor.execute(f'''INSERT INTO {table_name} (title, rating, description, poster_url, detail_url, votes, runtime, pub_year, genre, certificate, metascore, year, month)
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (data['title'], data['rating'], data['description'], data['poster_url'], data['detail_url'], data['votes'], data['runtime'], data['pub_year'], data['genre'], data['certificate'], data['metascore'], year, month))
+            cursor.execute(f'''INSERT INTO {table_name} (imdb_id, title, rating, description, poster_url, detail_url, votes, runtime, pub_year, genre, certificate, metascore, year, month)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (data['imdb_id'], data['title'], data['rating'], data['description'], data['poster_url'], data['detail_url'], data['votes'], data['runtime'], data['pub_year'], data['genre'], data['certificate'], data['metascore'], year, month))
         conn.commit()
     except Error as e:
         print(e)

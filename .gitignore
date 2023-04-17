@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+
 # Local development settings
 .env
 .DS_Store
@@ -16,4 +17,5 @@ __pycache__/
 # Distribution / packaging
 dist/
 build/
+imdb-best-series-backend/
 *.egg-info/

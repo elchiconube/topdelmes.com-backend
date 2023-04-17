@@ -65,7 +65,7 @@ def get_data(table_name):
 
     conn.close()
 
-    result = [dict(zip(('id', 'title', 'rating', 'description', 'poster_url', 'detail_url', 'votes', 'runtime', 'pub_year', 'genre', 'certificate', 'metascore', 'year', 'month'), row)) for row in rows]
+    result = [dict(zip(('id', 'imdb_id', 'title', 'rating', 'description', 'poster_url', 'detail_url', 'votes', 'runtime', 'pub_year', 'genre', 'certificate', 'metascore', 'year', 'month'), row)) for row in rows]
 
     return jsonify(result)
 

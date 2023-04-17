@@ -1,8 +1,14 @@
 # README
 
+## Crear entorno
+```
+pip3 install virtualenv
+python3 -m venv imdb-best-series-backend
+```
+
 ## Entrar en entorno
 ```
-source venv/bin/activate
+source imdb-best-series-backend/bin/activate
 ```
 ## Instalar dependencias
 ```

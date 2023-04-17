@@ -27,23 +27,23 @@ def get_item_data(item):
     genre = item.select_one('.genre')
     metascore = item.select_one('.metascore')
     certificate = item.select_one('.certificate')
-
-    imdb_id = re.findall(r'/title/(tt\d+)/', title['href'])[0] if title else ""
+    detail_url = f"https://www.imdb.com{title['href']}" if title else ""
+    imdb_id = re.search(r'tt\d+', detail_url).group() if detail_url else ""
 
     
     return {
+        'imdb_id': imdb_id,
         'title': title.text.strip() if title else "",
         'rating': float(rating['data-value'].strip()) if rating else 0.0,
         'description': description.text.strip() if description else "",
         'poster_url': update_poster_url(poster['loadlate']) if poster else "",
-        'detail_url': f"https://www.imdb.com{title['href']}" if title else "",
+        'detail_url': detail_url,
         'votes': int(votes.text.strip().replace(",", "")) if votes else 0,
         'runtime': int(runtime.text.strip().replace(" min", "")) if runtime else 0,
         'pub_year': year.text.strip() if year else "",
         'genre': genre.text.strip() if genre else "",
         'certificate': certificate.text.strip() if certificate else "",
         'metascore': int(metascore.text.strip()) if metascore else 0,
-        'imdb_id': imdb_id,
     }
 
 def scrape_imdb(year, month, title_type="tv_series"):

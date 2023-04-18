@@ -40,7 +40,7 @@ def get_item_data(item):
         'detail_url': detail_url,
         'votes': int(votes.text.strip().replace(",", "")) if votes else 0,
         'runtime': int(runtime.text.strip().replace(" min", "")) if runtime else 0,
-        'pub_year': year.text.strip() if year else "",
+        'pub_year': year.text.strip().replace('(II) ', "") if year else "",
         'genre': genre.text.strip() if genre else "",
         'certificate': certificate.text.strip() if certificate else "",
         'metascore': int(metascore.text.strip()) if metascore else 0,
@@ -61,7 +61,7 @@ def scrape_imdb(year, month, title_type="tv_series"):
     return [get_item_data(item) for item in soup.select('.lister-item.mode-advanced')]
 
 def update_poster_url(url):
-    pattern = r'@\._V1_.*_AL_\.jpg'
-    new_suffix = "@._V1_SY1000_CR0,0,674,1000_AL_.jpg"
+    pattern = r'_V1_.*\.jpg'
+    new_suffix = "_V1_SY1000_CR0,0,674,1000_AL_.jpg"
     new_url = re.sub(pattern, new_suffix, url)
     return new_url

@@ -5,3 +5,5 @@ schedule==1.1.0
 python-dotenv==0.19.2
 python-dateutil
 gunicorn==20.1.0
+unicodedata2==15.0.0
+requests-html==0.10.0

@@ -46,3 +46,33 @@ def get_data_by_month_and_year(conn, month, year, table_name):
     cursor = conn.cursor()
     cursor.execute(f"SELECT * FROM {table_name} WHERE year=? AND month=?", (year, month))
     return cursor.fetchall()
+
+def get_netflix_data_by_date(conn, date, title_type):
+    cursor = conn.cursor()
+    date_str = date.strftime('%Y-%m-%d')
+    cursor.execute("SELECT * FROM netflix WHERE date=? AND title_type=?", (date_str, title_type))
+    return cursor.fetchall()
+
+def create_netflix_table(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''CREATE TABLE IF NOT EXISTS netflix
+                        (id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        title TEXT NOT NULL,
+                        poster_url TEXT NOT NULL,
+                        detail_url TEXT NOT NULL,
+                        position INTEGER NOT NULL,
+                        date TEXT NOT NULL,
+                        title_type TEXT NOT NULL)''')
+    except Error as e:
+        print(e)
+
+def insert_netflix_data(conn, data_list, date, title_type):
+    try:
+        cursor = conn.cursor()
+        for data in data_list:
+            cursor.execute('''INSERT INTO netflix (title, poster_url, detail_url, position, date, title_type)
+                            VALUES (?, ?, ?, ?, ?, ?)''', (data['title'], data['poster_url'], data['detail_url'], data['position'], date, title_type))
+        conn.commit()
+    except Error as e:
+        print(e)

@@ -1,14 +1,26 @@
 import sqlite3
 from sqlite3 import Error
+import os
 
 def create_connection():
     conn = None
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    db_path = os.path.join(base_dir, 'data', 'data.db')
     try:
-        conn = sqlite3.connect("data.db")
+        if not os.path.exists(os.path.dirname(db_path)):
+            os.makedirs(os.path.dirname(db_path))
+        conn = sqlite3.connect(db_path)
     except Error as e:
         print(e)
-
     return conn
+
+def initialize_database():
+    conn = create_connection()
+    create_table(conn, "series")
+    create_table(conn, "movies")
+    conn.close()
+
+
 
 def create_table(conn, table_name):
     try:

@@ -8,6 +8,10 @@ processes = []
 
 [env]
 
+[[mounts]]
+  source="topdelmes"
+  destination="/app/data"
+
 [experimental]
   auto_rollback = true
 

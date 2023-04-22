@@ -9,6 +9,7 @@ import threading
 import calendar
 import os
 from dotenv import load_dotenv
+import sys
 
 load_dotenv()
 app = Flask(__name__)
@@ -20,6 +21,9 @@ def update_data(table_name):
     current_year, current_month = datetime.now().year, datetime.now().month
     data = scraper.scrape_imdb(current_year, current_month, title_type=table_name)
     conn = database.create_connection()
+    if conn is None:
+        print("Error: No se pudo conectar a la base de datos.")
+        sys.exit(1)
     database.insert_data(conn, data, current_year, current_month, table_name=table_name)
     conn.close()
     print(f"Datos de {table_name} actualizados")
@@ -79,7 +83,15 @@ def get_series():
 def get_movies():
     return get_data("movies")
 
+def initialize_database():
+    conn = database.create_connection()
+    database.create_table(conn, "series")
+    database.create_table(conn, "movies")
+    conn.close()
+
+
 if __name__ == "__main__":
+
     # Crear la conexión a la base de datos y la tabla
     conn = database.create_connection()
     database.create_table(conn, "series")
@@ -98,5 +110,7 @@ if __name__ == "__main__":
     schedule.every(days_in_month).days.at("00:00").do(update_data, table_name="movies")
     scheduler_thread = threading.Thread(target=run_schedule)
     scheduler_thread.start()
+
+    initialize_database()
 
     app.run(debug=True)

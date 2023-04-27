@@ -12,9 +12,17 @@ def get_start_and_end_dates(year, month):
     end_date_str = end_date.strftime("%Y-%m-%d")
     return start_date_str, end_date_str
 
-def get_url(year, month, title_type="tv_series"):
-    start_date, end_date = get_start_and_end_dates(year, month)
-    return f"https://www.imdb.com/search/title/?title_type={title_type}&release_date={start_date},{end_date}&start=1&ref_=adv_nxt"
+def get_url(year, month=None, title_type="tv_series"):
+    if title_type == "series":
+        title_type = "tv_series"
+    elif title_type == "movies":
+        title_type = "movie"
+
+    if month:
+        start_date, end_date = get_start_and_end_dates(year, month)
+        return f"https://www.imdb.com/search/title/?title_type={title_type}&release_date={start_date},{end_date}&start=1&ref_=adv_nxt"
+    else:
+        return f"https://www.imdb.com/search/title/?year={year}&title_type={title_type}"
 
 def get_item_data(item):
     title = item.select_one('.lister-item-header a')
@@ -46,7 +54,7 @@ def get_item_data(item):
         'metascore': int(metascore.text.strip()) if metascore else 0,
     }
 
-def scrape_imdb(year, month, title_type="tv_series"):
+def scrape_imdb(year, month=None, title_type="tv_series"):
     if title_type == "series":
         title_type = "tv_series"
     elif title_type == "movies":

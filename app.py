@@ -54,7 +54,7 @@ def get_data(table_name):
     current_year, current_month = datetime.now().year, datetime.now().month
 
     if not month:
-        month = current_month
+        month = None
     else:
         month = int(month)
 
@@ -63,7 +63,7 @@ def get_data(table_name):
     else:
         year = int(year)
 
-    if year > current_year or (year == current_year and month > current_month):
+    if year > current_year or (year == current_year and month and month > current_month):
         return jsonify({"error": "Invalid date value"}), 400
 
     conn = database.create_connection()
@@ -79,6 +79,7 @@ def get_data(table_name):
     result = [dict(zip(('id', 'imdb_id', 'title', 'rating', 'description', 'poster_url', 'detail_url', 'votes', 'runtime', 'pub_year', 'genre', 'certificate', 'metascore', 'year', 'month'), row)) for row in rows]
 
     return jsonify(result)
+
 
 @app.route("/series", methods=["GET"])
 @require_api_key

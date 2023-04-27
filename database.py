@@ -2,7 +2,7 @@ import sqlite3
 from sqlite3 import Error
 
 def create_connection():
-    conn = None
+    conn = None;
     try:
         conn = sqlite3.connect("/app/data/data.db")
     except Error as e:
@@ -28,9 +28,10 @@ def create_table(conn, table_name):
                         certificate TEXT NOT NULL,
                         metascore INTEGER NOT NULL,
                         year INTEGER NOT NULL,
-                        month INTEGER NOT NULL)''')
+                        month INTEGER)''')  # Remove NOT NULL constraint here
     except Error as e:
         print(e)
+
 
 def insert_data(conn, data_list, year, month, table_name):
     try:
@@ -42,9 +43,17 @@ def insert_data(conn, data_list, year, month, table_name):
     except Error as e:
         print(e)
 
+def get_data_by_year(conn, year, table_name):
+    cursor = conn.cursor()
+    cursor.execute(f"SELECT * FROM {table_name} WHERE year=?", (year,))
+    return cursor.fetchall()
+
 def get_data_by_month_and_year(conn, month, year, table_name):
     cursor = conn.cursor()
-    cursor.execute(f"SELECT * FROM {table_name} WHERE year=? AND month=?", (year, month))
+    if month is None:
+        cursor.execute(f"SELECT * FROM {table_name} WHERE year=?", (year,))
+    else:
+        cursor.execute(f"SELECT * FROM {table_name} WHERE year=? AND month=?", (year, month))
     return cursor.fetchall()
 
 def get_netflix_data_by_date(conn, date, title_type):
